@@ -53,6 +53,7 @@ void show_man_page(int argc, char *argv[]);
 void show_history(int argc, char *argv[]);
 void show_xxd(int argc, char *argv[]);
 void show_file_list(int argc, char *argv[]);
+void show_file_content(int argc, char *argv[]);
 
 /* Enumeration for command types. */
 enum {
@@ -64,6 +65,7 @@ enum {
 	CMD_PS,
 	CMD_XXD,
     CMD_LS,
+    CMD_CAT,
 	CMD_COUNT
 } CMD_TYPE;
 /* Structure for command handler. */
@@ -81,6 +83,7 @@ const hcmd_entry cmd_data[CMD_COUNT] = {
 	[CMD_PS] = {.cmd = "ps", .func = show_task_info, .description = "List all the processes."},
 	[CMD_XXD] = {.cmd = "xxd", .func = show_xxd, .description = "Make a hexdump."},
 	[CMD_LS] = {.cmd = "ls", .func = show_file_list, .description = "List all files in current directory."},
+	[CMD_CAT] = {.cmd = "cat", .func = show_file_content, .description = "Show file content."},
 };
 
 /* Structure for environment variables. */
@@ -643,6 +646,7 @@ void show_xxd(int argc, char *argv[])
     }
 
     lseek(readfd, 0, SEEK_SET);
+    
     while ((size = read(readfd, &ch, sizeof(ch))) && size != -1) {
         if (ch != -1 && ch != 0x04) { /* has something read */
 
@@ -687,7 +691,7 @@ void show_xxd(int argc, char *argv[])
             break;
         }
     }
-
+    
     if (pos % XXD_WIDTH != 0) { /* rest */
         /* align */
         for (i = pos % XXD_WIDTH; i < XXD_WIDTH; i++) {
@@ -713,6 +717,65 @@ void show_file_list(int argc, char *argv[])
 
 }
 
+void show_file_content(int argc, char *argv[])
+{
+    int readfd = -1;
+    char buf[XXD_WIDTH];
+    char ch;
+    char chout[2] = {0};
+    int pos = 0;
+    int size;
+    int i;
+
+    if (argc == 1) { /* fallback to stdin */
+        readfd = fdin;
+    }
+    else { /* open file of argv[1] */
+        readfd = open(argv[1], 0);
+
+        if (readfd < 0) { /* Open error */
+            write(fdout, "cat: ", 6);
+            write(fdout, argv[1], strlen(argv[1]) + 1);
+            write(fdout, ": No such file or directory\r\n", 31);
+            return;
+        }
+    }
+
+    lseek(readfd, 0, SEEK_SET);
+    while ((size = read(readfd, &ch, sizeof(ch))) && size != -1) {
+        if (ch != -1 && ch != 0x04) { /* has something read */
+
+            /* store in buffer */
+            buf[pos % XXD_WIDTH] = ch;
+
+            pos++;
+
+            if (pos % XXD_WIDTH == 0) { /* end of line */
+                write(fdout, "  ", 3);
+
+                for (i = 0; i < XXD_WIDTH; i++) {
+                    chout[0] = char_filter(buf[i], '.');
+                    write(fdout, chout, 2);
+                }
+
+                write(fdout, "\r\n", 3);
+            }
+        }
+        else { /* EOF */
+            break;
+        }
+    }
+
+    if (pos % XXD_WIDTH != 0) { /* rest */
+
+        for (i = 0; i < pos % XXD_WIDTH; i++) {
+            chout[0] = char_filter(buf[i], '.');
+            write(fdout, chout, 2);
+        }
+
+        write(fdout, "\r\n", 3);
+    }
+}
 
 void first()
 {
