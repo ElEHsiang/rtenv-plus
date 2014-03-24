@@ -62,6 +62,7 @@ int romfs_open(int device, char *path, struct romfs_entry *entry)
     read(device, entry, sizeof(*entry));
 
     return romfs_open_recur(device, path, 0, entry);
+
 }
 
 void romfs_server()
@@ -96,6 +97,14 @@ void romfs_server()
 	                pos = romfs_open(request.device, request.path + pos, &entry);
 
 	                if (pos >= 0) { /* Found */
+                        if(entry.isdir)
+                        {
+                            status = -1;
+	                        write(from, &status, sizeof(status));
+	                        break;
+
+                        }
+
 	                    /* Register */
 	                    status = path_register(request.path);
 
