@@ -714,7 +714,16 @@ void show_xxd(int argc, char *argv[])
 
 void show_file_list(int argc, char *argv[])
 {
+    /*
+    int readfd = -1;
 
+    if(argc ==1){
+        readfd = fdin;    
+    }
+    else{
+        readfd = open(argv[1], 0);
+    }
+    */
 }
 
 void show_file_content(int argc, char *argv[])
@@ -733,10 +742,16 @@ void show_file_content(int argc, char *argv[])
     else { /* open file of argv[1] */
         readfd = open(argv[1], 0);
 
-        if (readfd < 0) { /* Open error */
+        if (readfd == -1) { /* Open error */
             write(fdout, "cat: ", 6);
             write(fdout, argv[1], strlen(argv[1]) + 1);
             write(fdout, ": No such file or directory\r\n", 31);
+            return;
+        }
+        if (readfd == -2) { /* Open error */
+            write(fdout, "cat: ", 6);
+            write(fdout, argv[1], strlen(argv[1]) + 1);
+            write(fdout, ": This is not a directory\r\n", 31);
             return;
         }
     }

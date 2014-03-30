@@ -99,10 +99,9 @@ void romfs_server()
 	                if (pos >= 0) { /* Found */
                         if(entry.isdir)
                         {
-                            status = -1;
+                            status = -2;
 	                        write(from, &status, sizeof(status));
 	                        break;
-
                         }
 
 	                    /* Register */
