@@ -103,6 +103,8 @@ void pathserver()
 			    }
 		        break;
             case PATH_CMD_OPEN_DIR:
+		        read(PATHSERVER_FD, &plen, 4);
+		        read(PATHSERVER_FD, path, plen);
                 for(i = 0; i < nmounts; i++){
                     if(*mounts[i].path 
                             && strncmp(path, mounts[i].path,

@@ -714,16 +714,27 @@ void show_xxd(int argc, char *argv[])
 
 void show_file_list(int argc, char *argv[])
 {
-    /*
+    struct romfs_entry entry; 
+    //char fdoutput[3];
     int readfd = -1;
+    //int pos = 0;
+    int size = 0;
+    
+    readfd = open(argv[1],0);
 
-    if(argc ==1){
-        readfd = fdin;    
+    lseek(readfd, 0, SEEK_SET);
+        
+    if(readfd == -1){
+        write(fdout, "ls fail", 8);
+        return;
+    }else{
+        while((size = read(readfd, &entry, sizeof(entry))) && size != -1){
+            
+            write(fdout, entry.name, strlen((char *)entry.name));
+            write(fdout, "\r\n", 3);
+            lseek(readfd, entry.len, SEEK_CUR);
+        }
     }
-    else{
-        readfd = open(argv[1], 0);
-    }
-    */
 }
 
 void show_file_content(int argc, char *argv[])

@@ -14,14 +14,6 @@ struct romfs_file {
     size_t len;
 };
 
-struct romfs_entry {
-    uint32_t parent;
-    uint32_t prev;
-    uint32_t next;
-    uint32_t isdir;
-    uint32_t len;
-    uint8_t name[PATH_MAX];
-};
 
 int romfs_open_recur(int device, char *path, int this, struct romfs_entry *entry)
 {
@@ -61,6 +53,9 @@ int romfs_open(int device, char *path, struct romfs_entry *entry)
     lseek(device, 0, SEEK_SET);
     read(device, entry, sizeof(*entry));
 
+    if(strcmp(path,"/") == 0){
+        return 0; 
+    }
     return romfs_open_recur(device, path, 0, entry);
 
 }
@@ -97,12 +92,13 @@ void romfs_server()
 	                pos = romfs_open(request.device, request.path + pos, &entry);
 
 	                if (pos >= 0) { /* Found */
+                        /*
                         if(entry.isdir)
                         {
                             status = -2;
 	                        write(from, &status, sizeof(status));
 	                        break;
-                        }
+                        }*/
 
 	                    /* Register */
 	                    status = path_register(request.path);
@@ -134,6 +130,7 @@ void romfs_server()
 	                    /* Register */
 	                    status = path_register(request.path);
 
+                        
                         if (status != -1) {
                             mknod(status, 0, S_IFREG);
 	                        files[nfiles].fd = status;
@@ -145,7 +142,7 @@ void romfs_server()
                     }else{
                         status =-1;
                     }
-
+                    
                     /* Response */
 	                write(from, &status, sizeof(status));
                     write(from, &entry, sizeof(entry));
