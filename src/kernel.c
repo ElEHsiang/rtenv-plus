@@ -168,7 +168,9 @@ void rs232_xmit_msg_task()
 	int fdout;
 	int fdin;
 	char str[100];
-	int curr_char;
+	//int curr_char;
+    int len = 0;
+    int i;
 
 	fdout = open("/dev/tty0/out", 0);
 	fdin = mq_open("/tmp/mqueue/out", O_CREAT);
@@ -178,14 +180,22 @@ void rs232_xmit_msg_task()
 		/* Read from the queue.  Keep trying until a message is
 		 * received.  This will block for a period of time (specified
 		 * by portMAX_DELAY). */
-		read(fdin, str, 100);
+		len = read(fdin, str, 100);
+
+        
 
 		/* Write each character of the message to the RS232 port. */
-		curr_char = 0;
+		//curr_char = 0;
+
+        for(i = 0; i < len; i++){
+            write(fdout, &str[i],1);
+        }
+        
+        /*
 		while (str[curr_char] != '\0') {
 			write(fdout, &str[curr_char], 1);
 			curr_char++;
-		}
+		}*/
 	}
 }
 
@@ -287,7 +297,7 @@ void serial_test_task()
 			}
 			else if (p - cmd[cur_his] < CMDBUF_SIZE - 1) {
 				*p++ = put_ch[0];
-				write(fdout, put_ch, 2);
+				write(fdout, put_ch, 1);
 			}
 		}
 		check_keyword();	
