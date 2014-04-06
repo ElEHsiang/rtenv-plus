@@ -730,7 +730,7 @@ void show_file_list(int argc, char *argv[])
     }else{
         while((size = read(readfd, &entry, sizeof(entry))) && size != -1){
             
-            write(fdout, entry.name, strlen((char *)entry.name));
+            write(fdout, entry.name, strlen((char *)entry.name)+1);
             write(fdout, "\r\n", 3);
             lseek(readfd, entry.len, SEEK_CUR);
         }
