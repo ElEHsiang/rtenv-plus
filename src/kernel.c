@@ -292,7 +292,7 @@ void serial_test_task()
 			else if (put_ch[0] == 127 || put_ch[0] == '\b') {
 				if (p > cmd[cur_his]) {
 					p--;
-					write(fdout, "\b \b", 4);
+					write(fdout, "\b \b", 3);
 				}
 			}
 			else if (p - cmd[cur_his] < CMDBUF_SIZE - 1) {
@@ -740,7 +740,7 @@ void show_file_list(int argc, char *argv[])
     }else{
         while((size = read(readfd, &entry, sizeof(entry))) && size != -1){
             
-            write(fdout, entry.name, strlen((char *)entry.name)+1);
+            write(fdout, entry.name, strlen((char *)entry.name));
             write(fdout, "\r\n", 3);
             lseek(readfd, entry.len, SEEK_CUR);
         }
