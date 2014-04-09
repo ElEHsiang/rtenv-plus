@@ -1,7 +1,7 @@
 TARGET = main
 .DEFAULT_GOAL = all
 
-CROSS_COMPILE ?= arm-none-eabi-
+CROSS_COMPILE ?= /usr/local/csl/arm-2012.03/bin/arm-none-eabi-
 CC := $(CROSS_COMPILE)gcc
 CFLAGS = -fno-common -ffreestanding -O0 \
          -gdwarf-2 -g3 -Wall -Werror \

@@ -730,7 +730,11 @@ void show_file_list(int argc, char *argv[])
     //int pos = 0;
     int size = 0;
     
-    readfd = open(argv[1],0);
+    if(argc == 1){
+        readfd = open("/",0);    
+    }else{
+        readfd = open(argv[1],0);
+    }
 
     lseek(readfd, 0, SEEK_SET);
         

@@ -60,6 +60,7 @@ int romfs_open(int device, char *path, struct romfs_entry *entry)
 
 }
 
+
 void romfs_server()
 {
     struct romfs_file files[ROMFS_FILE_LIMIT];
@@ -89,8 +90,11 @@ void romfs_server()
 	                device = request.device;
 	                from = request.from;
 	                pos = request.pos; /* searching starting position */
-	                pos = romfs_open(request.device, request.path + pos, &entry);
-
+                    if(strcmp(request.path, "/") == 0){
+	                    pos = romfs_open(request.device, request.path, &entry);
+                    }else{
+	                    pos = romfs_open(request.device, request.path + pos, &entry);
+                    }
 	                if (pos >= 0) { /* Found */
                         /*
                         if(entry.isdir)
