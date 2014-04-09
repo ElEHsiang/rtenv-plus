@@ -123,35 +123,6 @@ void romfs_server()
                     /* Response */
 	                write(from, &status, sizeof(status));
 	                break;
-                case FS_CMD_OPEN_DIR:
-                    device = request.device;
-                    from = request.from;
-                    pos = request.pos;
-	                pos = romfs_open(request.device, request.path + pos, &entry);
-
-                    if(entry.isdir)
-                    {
-	                    /* Register */
-	                    status = path_register(request.path);
-
-                        
-                        if (status != -1) {
-                            mknod(status, 0, S_IFREG);
-	                        files[nfiles].fd = status;
-	                        files[nfiles].device = request.device;
-	                        files[nfiles].start = pos + sizeof(entry);
-	                        files[nfiles].len = entry.len;
-	                        nfiles++;
-                        }
-                    }else{
-                        status =-1;
-                    }
-                    
-                    /* Response */
-	                write(from, &status, sizeof(status));
-                    write(from, &entry, sizeof(entry));
-
-                    break;
 	            case FS_CMD_READ:
 	                from = request.from;
 	                target = request.target;
